@@ -8,3 +8,4 @@ edition = "2018"
 
 [dependencies]
 itertools= {version="^0.9.0"}
+scan_fmt= {version="^0.2.5"}
