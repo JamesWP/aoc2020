@@ -1,6 +1,9 @@
 use itertools::Itertools;
 use regex::Regex;
-use std::{collections::HashMap, convert::TryFrom, convert::TryInto, fs, ops::RangeInclusive};
+use std::{
+    collections::HashMap, collections::HashSet, convert::TryFrom, convert::TryInto, fs,
+    ops::RangeInclusive,
+};
 
 fn parse(
     filename: &str,
@@ -63,7 +66,7 @@ fn parse(
 
 #[test]
 fn test_parse() {
-    let (rules, _, others) = parse("day16.txt");
+    let (rules, _, others) = parse("day16test.txt");
 
     let errors: i32 = others
         .iter()
@@ -74,7 +77,7 @@ fn test_parse() {
                 .filter(|num| {
                     rules
                         .iter()
-                        .filter(|(name, r1, r2)| r1.contains(num) || r2.contains(num))
+                        .filter(|(_name, r1, r2)| r1.contains(num) || r2.contains(num))
                         .next()
                         .is_none()
                 })
@@ -107,6 +110,37 @@ fn test_parse() {
         })
         .collect();
 
-
     println!("valid_tickets: {:?}", valid_tickets);
+
+    let num_fields = rules.len();
+
+    for rule_idx in 0..num_fields {
+        let rule = &rules[rule_idx];
+        let (name, r1, r2) = rule;
+
+        println!("rule: {:?}", name);
+
+        let possibilities = (0..num_fields)
+            .map(|field_idx| {
+                //println!("field idx: {}", field_idx);
+                let values = valid_tickets
+                    .iter()
+                    .map(|ticket| ticket[field_idx])
+                    .collect::<HashSet<_>>();
+                let num_invalid = values
+                    .iter()
+                    .filter(|val| !r1.contains(val) && !r2.contains(val))
+                    .count();
+                //println!("values: {:?}", values);
+                //println!("num invalid values: {:?}", num_invalid);
+                if num_invalid == 0 {
+                    0
+                } else {
+                    1
+                }
+            })
+            .collect::<Vec<_>>();
+
+        println!("possibilities: {:?}", possibilities);
+    }
 }
